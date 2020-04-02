@@ -20,7 +20,7 @@ variable "region" {
   description = "Region of the vpc"
 }
 
-variable "vpc-cidr" {
+variable "vpc_cidr" {
   type = string
   default = "10.10.10.0/24"
   description = "VPC Cidr Block"
@@ -32,7 +32,7 @@ variable "public_subnet_cidr_blocks" {
   description = "List of public subnet CIDR blocks"
 }
 
-variable "availablity_zone" {
+variable "availability_zones" {
   type        = list
   default     = ["eu-west-1a","eu-west-1b","eu-west-1c"]
   description = "List of public subnet CIDR blocks"

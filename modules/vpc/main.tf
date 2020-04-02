@@ -1,5 +1,5 @@
 resource "aws_vpc" "vpc" {
-  cidr_block           = var.vpc-cidr
+  cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
 
   tags = merge(
@@ -17,7 +17,7 @@ resource "aws_subnet" "public" {
   count = length(var.public_subnet_cidr_blocks)
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.public_subnet_cidr_blocks[count.index]
-  availability_zone = var.availablity_zone[count.index]
+  availability_zone = var.availability_zones[count.index]
 
   tags = merge(
     {
@@ -72,7 +72,7 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_instance" "instance" {
   count                       = var.instance_count
-  ami                         = lookup(images,var.region)
+  ami                         = lookup(var.images,var.region)
   instance_type               = "t2.small"
   vpc_security_group_ids      = [ aws_security_group.security-group.id ]
   subnet_id                   = element(aws_subnet.public.*.id, count.index)
@@ -82,6 +82,16 @@ resource "aws_instance" "instance" {
 yum install -y nginx
 service nginx start
 EOF
+
+tags = merge(
+    {
+      Name        = "Bastion",
+      Project     = var.project,
+      Environment = var.environment
+    },
+    var.tags
+  )
+
 }
 
 resource "aws_security_group" "security-group" {
@@ -114,6 +124,7 @@ resource "aws_security_group" "security-group" {
   }
 }
 
+# configured to output the first instance
 output "nginx_domain" {
-  value = aws_instance.instance.public_dns
+  value = aws_instance.instance[0].public_dns
 }
